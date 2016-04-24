@@ -1,6 +1,6 @@
  PDEs = LOAD 'hdfs:/user/steitzb/grad_students/prescription_events/*.csv' using PigStorage(',');
  Benefs = LOAD 'hdfs:/user/steitzb/grad_students/beneficiary/*.csv' using PigStorage(',');
- PDE = FOREACH PDEs GENERATE $0 as ID, REGEX_EXTRACT($2, '([0-9]{6})', 1) as date, $3 as serviceId, $8 as cost;
+ PDE = FOREACH PDEs GENERATE $0 as ID, REGEX_EXTRACT($2, '([0-9]{6})', 1) as date, $3 as serviceId, $7 as cost;
  Grouped = GROUP PDE by (ID, date);
  Agg = FOREACH Grouped {
     uniqueSIDs = DISTINCT PDE.serviceId;
