@@ -23,8 +23,8 @@ def create_Input_Output(PDE_data):
         line = line.strip()
         line = line[1:-1]
         line = line.split(',')
-        PDEs.append(line[2:4])
-        outcome.append(line[4])
+        PDEs.append(line[2:5])
+        outcome.append(line[5])
     WIDTH = len(PDEs[0])
     print "starting X matrix", datetime.datetime.now()
     X = scipy.zeros((len(PDEs), WIDTH))
@@ -61,6 +61,8 @@ def main():
     print "starting RF", datetime.datetime.now()
     clf = RandomForestClassifier(max_depth=15)
     test_prediction(clf, X, Y)
+
+    print "finished", datetime.datetime.now()
 
 if __name__ == '__main__':
     main()
