@@ -6,6 +6,7 @@ from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import tree
 
 def load_PDEs():
     #Input file was created using Pig to construct outcome from time window
@@ -43,13 +44,17 @@ def test_prediction(clf, X, Y):
     for train, test in folds:
         clf.fit(X[train],Y[train])
         prediction = clf.predict_proba(X[test])
-        aucs.append(roc_auc_score(Y[test], prediction[:,0]))
+        aucs.append(roc_auc_score(Y[test], prediction[:,1]))
     print clf.__class__.__name__, aucs, numpy.mean(aucs)
 
 def main():
     PDE_data = load_PDEs()
     X, Y = create_Input_Output(PDE_data)
     
+    print "starting Tree", datetime.datetime.now()
+    clf = tree.DecisionTreeClassifier()
+    test_prediction(clf, X, Y)
+
     print "starting Gaussian", datetime.datetime.now()
     clf = GaussianNB()
     test_prediction(clf, X, Y)
