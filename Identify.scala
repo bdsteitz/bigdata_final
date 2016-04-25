@@ -3,8 +3,8 @@ import java.net.URL
 import java.nio.charset.Charset
 import org.apache.spark.mllib.fpm.FPGrowth
 
-val codesText = sc.textFile('hdfs:/user/goldstm/grad_students/patientcodes')
-val outcomes = sc.textFile('hdfs:/user/steitzb/grad_students/patient_outcome/pde.txt')
+val codesText = sc.textFile("hdfs:/user/goldstm/grad_students/patientcodes")
+val outcomes = sc.textFile("hdfs:/user/steitzb/grad_students/patient_outcome/pde.txt")
 outcomes.cache()
 codesText.cache()
 
@@ -33,9 +33,7 @@ var patients = patients1 ++ patients2 ++ patients3 ++ patients4 ++ patients5 ++ 
 
 patients.cache()
 
-val fpg = new FPGrowth()
-  .setMinSupport(0.001)
-  .setNumPartitions(40)
+val fpg = new FPGrowth().setMinSupport(0.001).setNumPartitions(40)
 val model = fpg.run(patients.map(s => s._2))
 val groups = model.freqItemsets.collect().map(i => (i.items,i.freq))
 
