@@ -11,5 +11,4 @@
  Joined = JOIN Agg by group.ID LEFT OUTER, Benef by ID;
  Reduced = DISTINCT Joined;
  Flagged = FOREACH Reduced Generate group.ID, group.date, SIDct, moCost, dailyCost, (death is null ? 0 : ((int)(MonthsBetween(ToDate(death, 'yyyyMM'), ToDate(group.date,'yyyyMM'))) <= 6 ? 1 : 0)) as Flag;
- Final = Distinct Flagged;
- DUMP Final;
+ DUMP Flagged;
