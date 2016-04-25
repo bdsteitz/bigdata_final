@@ -103,4 +103,43 @@ CONCAT(DischargeDate, '000000') AS EndDateTime,'ICD9' AS DataType,FLATTEN(TOBAG(
 
 filteredresult = FILTER inpatientIcds BY DataValue != '';
 
-STORE filteredresult INTO 'hdfs:/user/steitzb/grad_students/patientcodes' USING PigStorage(',');
+beneficiaryClaims = LOAD 'hdfs:/user/steitzb/grad_students/beneficiary/*.csv' using PigStorage(',') as
+(PatientId,
+DateOfBirth,
+DateOfDeath,
+Sex,
+RaceCode,
+EndStgRenal,
+State,
+Country,
+MonthsOfPartA,
+MonthsOfPartB,
+MonthsOfHmo,
+MonthsPlanHmo,
+ChronicConditionCode,
+CHF,
+CKD,
+Cancer,
+COPD,
+Depression,
+Diabetes,
+HeartDisease,
+Osteoporosis,
+Arthritis,
+Stroke,
+InpatientAmount,
+InpatientPatientAmount,
+InpatientPayorAmount,
+OutpatientAmount,
+OutpatientBeneficiaryAmount,
+OutpatientPayorAmount,
+CarrierAmount,
+CarrierPatientAmount,
+CarrierPayorAmount);
+
+beneficiaryDobs = FOREACH beneficiaryClaims GENERATE '00000000000000', PatientId, DateOfDeath, '00000000000000' AS
+EndDateTime, 'DateOfDeath' AS DataType, (REGEX_EXTRACT(DateOfDeath, '([0-9]{6})', 1) is null ? 'Alive' : 'Dead') AS DataValue;
+
+result = UNION filteredresult, beneficiaryDobs;
+
+STORE result INTO 'hdfs:/user/goldstm/grad_students/patientcodes' USING PigStorage(',');
