@@ -101,7 +101,10 @@ CONCAT(DischargeDate, '000000') AS EndDateTime,'ICD9' AS DataType,FLATTEN(TOBAG(
 (chararray)Procedure5,
 (chararray)Procedure6))  AS DataValue;
 
-filteredresult = FILTER inpatientIcds BY DataValue != '';
+filteredresultinter = FILTER inpatientIcds BY DataValue != '';
+
+filteredresult = FOREACH filteredresultinter GENERATE ClaimId, PatientId, StartDateTime, EndDateTime, DataType,
+SUBSTRING(DataValue,0,3);
 
 beneficiaryClaims = LOAD 'hdfs:/user/steitzb/grad_students/beneficiary/*.csv' using PigStorage(',') as
 (PatientId,
