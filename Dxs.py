@@ -7,19 +7,14 @@ from sklearn.metrics import roc_auc_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import tree
-from pyspark import SparkConf, SparkContext
-import sys
-import re
 
-def load_Dxs():
-    conf = SparkConf() 
-    conf.setMaster("local[3]")
-    conf.set("spark.executor.memory", "10g")
-    conf.set("spark.driver.memory", "10g")
-    spark = SparkContext(conf = conf)
+def load_PDEs():
+    #Input file was created using Pig to construct outcome from time window
+    #by joining PDE's on Beneficiary death data
     print "reading file", datetime.datetime.now()
-    f = spark.textFile('hdfs:///user/goldstm/grad_students/icdMortalityDiff')
-    lines = f.toArray()
+    f = open('patientswithflags.out', 'r')
+    lines = f.readlines()
+    f.close()
     return lines
 
 def create_Input_Output(PDE_data):
@@ -28,10 +23,9 @@ def create_Input_Output(PDE_data):
     print "starting file processing", datetime.datetime.now()
     for line in PDE_data:
         line = line.strip()
-        line = line[1:-1]
         line = line.split(',')
-        PDEs.append(line[2:5])
-        outcome.append(line[5])
+        PDEs.append(line[1:6])
+        outcome.append(line[7])
     WIDTH = len(PDEs[0])
     print "starting X matrix", datetime.datetime.now()
     X = scipy.zeros((len(PDEs), WIDTH))
