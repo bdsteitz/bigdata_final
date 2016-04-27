@@ -11,6 +11,7 @@ from sklearn import tree
 def load_PDEs():
     #Input file was created using Pig to construct outcome from time window
     #by joining PDE's on Beneficiary death data
+    print "reading file", datetime.datetime.now()
     f = open('Final_Processed_PDEs.out', 'r')
     lines = f.readlines()
     f.close()
@@ -40,20 +41,20 @@ def create_Input_Output(PDE_data):
 
 def test_prediction(clf, X, Y):
     folds = StratifiedKFold(Y, 5)
+    baseline_auc = []
     aucs = []
     for train, test in folds:
+        Y_baseline = scipy.zeros(len(Y[test]))
         clf.fit(X[train],Y[train])
         prediction = clf.predict_proba(X[test])
+        baseline_auc.append(roc_auc_score(Y[test], Y_baseline))
         aucs.append(roc_auc_score(Y[test], prediction[:,1]))
-    print clf.__class__.__name__, aucs, numpy.mean(aucs)
+    print "baseline prediction", clf.__class__.__name__, baseline_auc, numpy.mean(baseline_auc)
+    print "model prediction", clf.__class__.__name__, aucs, numpy.mean(aucs)
 
 def main():
     PDE_data = load_PDEs()
-    X, Y = create_Input_Output(PDE_data)
-    
-    print "starting Tree", datetime.datetime.now()
-    clf = tree.DecisionTreeClassifier()
-    test_prediction(clf, X, Y)
+    X, Y = create_Input_Output(PDE_data)  
 
     print "starting Gaussian", datetime.datetime.now()
     clf = GaussianNB()
