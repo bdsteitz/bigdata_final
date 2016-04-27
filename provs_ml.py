@@ -8,7 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 
 def load_provs():
-    f = open('prov_list.csv', 'r')
+    f = open('prov_dates.txt', 'r')
     lines = f.readlines()
     f.close()
     return lines
@@ -57,7 +57,7 @@ def main():
     test_prediction(clf, X, Y)
 
     print "starting RF", datetime.datetime.now()
-    clf = RandomForestClassifier(max_depth = 15)
+    clf = RandomForestClassifier(max_depth = 15, class_weight = "balanced")
     test_prediction(clf, X, Y)
 
     print "finished", datetime.datetime.now()
