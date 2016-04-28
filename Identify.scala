@@ -3,6 +3,15 @@ import java.net.URL
 import java.nio.charset.Charset
 import org.apache.spark.mllib.fpm.FPGrowth
 
+/*
+ * How to run the code
+ * spark-shell --driver-memory 25G --executor-memory 25G -i Identify.scala
+*/
+
+
+//Change this variable for the prediction code
+val predictionCode = "140" 
+
 val codesText = sc.textFile("hdfs:/user/goldstm/grad_students/patientcodes")
 codesText.cache()
 
@@ -29,16 +38,15 @@ var patients6 = (codes6 ++ codes7 ++ codes8 ++ codes9 ++ codes10 ++ codes11).gro
 var patients7 = (codes7 ++ codes8 ++ codes9 ++ codes10 ++ codes11 ++ codes12).groupByKey()
 var patients = patients1 ++ patients2 ++ patients3 ++ patients4 ++ patients5 ++ patients6 ++ patients7
 // var patients = patients1 ++ patients2 ++ patients3
-
-val fpg = new FPGrowth().setMinSupport(0.0001).setNumPartitions(40)
+// Can adjust this value, do not go smaller than .0001
+val fpg = new FPGrowth().setMinSupport(0.001).setNumPartitions(40)
 val model = fpg.run(patients.values.map(_.toSet.toArray))
 val groups = model.freqItemsets.collect().map(i => (i.items,i.freq))
 
 
-val minConfidence = 0.001
+val minConfidence = 0.4
 val associationRules = model.generateAssociationRules(minConfidence).collect().filter(p =>
-p.consequent(0).equals("Dead")).sortWith(_.confidence > _.confidence )
-//val associationRules = model.generateAssociationRules(minConfidence).collect().sortWith(_.confidence > _.confidence)
+p.consequent(0).equals(predictionCode)).sortWith(_.confidence > _.confidence )
 
 sc.parallelize(associationRules.map(rule =>  rule.antecedent.mkString(",")
   + "\t" + rule.consequent(0)
