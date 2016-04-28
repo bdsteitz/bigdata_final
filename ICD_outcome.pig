@@ -4,6 +4,6 @@
  Benef = FOREACH Benefs GENERATE $0 as ID, REGEX_EXTRACT($1, '([0-9]{6})', 1) as birth;
  Joined = JOIN OutptICD by ID LEFT OUTER, Benef BY ID;
  Reduced = DISTINCT Joined;
- Final = FOREACH Reduced GENERATE OutptICD::ID, date, (YearsBetween(ToDate(date, 'yyyyMM'), ToDate(birth, 'yyyyMM'))) as
+ Final = FOREACH Reduced GENERATE OutptICD::ID, date, (date is null ? 999 : (YearsBetween(ToDate(date, 'yyyyMM'), ToDate(birth, 'yyyyMM')))) as
  age, ICD1, ICD2, ICD3, ICD4, ICD5, ICD6, ICD7, ICD8, ICD9, ICD10, outcome;
  DUMP Final;
