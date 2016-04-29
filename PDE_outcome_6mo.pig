@@ -16,8 +16,8 @@
     monthlyCost;
 }
 Joined = JOIN Agg by ID LEFT OUTER, Death_Quarter BY ID;
-Reduced = DISTINCT Joined;
-Final = FOREACH Reduced GENERATE $0, $1, SIDct, quarterCost, monthlyCost, death_quarter, (death_quarter == 0 ? 0 :
+Flat = FOREACH Joined GENERATE $0, $1, SIDct, quarterCost, monthlyCost, (death_quarter == 0 ? 0 :
 ($1 + 1 >= death_quarter ? 1 : 0)) as died;
+Final = DISTINCT Flat;
 DUMP Final;
 
