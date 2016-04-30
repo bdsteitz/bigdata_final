@@ -2,6 +2,8 @@
 
 Files:
 
+format_final_dataset: joins data from outpatient, provider, pdes into final dataset for full model
+
 format_icd_age.pig: Format ICD codes for future ICD catalog ordering
 
 format_icd_outcome_grouped.pig: Aggregate ICD chapter counts per patient during 6mo period and obtain outcome status.
