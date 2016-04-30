@@ -4,13 +4,14 @@ Files:
 
 format_icd_age.pig: Format ICD codes for future ICD catalog ordering
 
-format_icd_outcome_grouped.pig: Aggregate ICD chapter counts per patient during 6mo period and obtain outcome status
+format_icd_outcome_grouped.pig: Aggregate ICD chapter counts per patient during 6mo period and obtain outcome status.
+Same script works for inpatient and outpatient ICD data. Requires output from process_icd_catalog.py
 
-format_inpatient_icd.pig: Format inpatient claims for further ICD-related transformations
+format_inpatient_icd.pig: Format inpatient claims for further ICD-related transformations (not used in final project)
 
-format_patient_icds.py: Format inpatient and outpatient claims data for ICD catalog classifications 
+format_patient_icds.py: Format inpatient and outpatient claims data for use in ICD catalog classifications 
 
-get_inpatient_diagnosis.pig: Get inpatient diagnoses for inpatient data predictions
+get_inpatient_diagnosis.pig: Get inpatient diagnoses for inpatient data predictions (not used in final project)
 
 get_patient_ages.py: Get patient age based on beneficiary file
 
