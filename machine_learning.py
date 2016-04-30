@@ -8,36 +8,31 @@ from sklearn.metrics import roc_auc_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 
-def load_PDEs():
-    #Input file was created using Pig to construct outcome from time window
-    #by joining PDE's on Beneficiary death data
+def load_infile():
     print "reading file", datetime.datetime.now()
     f = open('inpatient_icd_6mo.txt', 'r')
     lines = f.readlines()
     f.close()
     return lines
 
-def create_Input_Output(PDE_data):
-    PDEs = []
+def create_Input_Output(feature_data):
+    features = []
     outcome = []
     print "starting file processing", datetime.datetime.now()
-    for line in PDE_data:
+    for line in feature_data:
         line = line.strip()
         line = line[1:-1]
         line = line.split(',')
-        PDEs.append(line[2:5])
+        features.append(line[2:-1])
         outcome.append(line[-1])
-    WIDTH = len(PDEs[0])
+    WIDTH = len(features[0])
     print "starting X matrix", datetime.datetime.now()
-    X = scipy.zeros((len(PDEs), WIDTH))
-    for i in range(0, len(PDEs)):
+    X = scipy.zeros((len(features), WIDTH))
+    for i in range(0, len(features)):
         for j in range(0, WIDTH):
-            X[i,j] = PDEs[i][j] if PDEs[i][j] != '' else 0
-    print "median meds", numpy.median(X[:,0])
-    print "median cost", numpy.median(X[:,1])
-    print "median cost per time", numpy.median(X[:,2])
+            X[i,j] = features[i][j] if features[i][j] != '' else 0
     
-    Y = scipy.zeros(len(PDEs))
+    Y = scipy.zeros(len(features))
     print "starting Y matrix", datetime.datetime.now()
     for i in range(0,len(outcome)):
         Y[i] = outcome[i][0]
@@ -69,8 +64,9 @@ def test_prediction(clf, X, Y):
     print "diff scaled aucs", clf.__class__.__name__, (numpy.mean(aucs_scaled) - numpy.mean(aucs_baseline_scaled))
 
 def main():
-    PDE_data = load_PDEs()
-    X, Y = create_Input_Output(PDE_data)  
+    start_time = datetime.datetime.now()
+    feature_data = load_infile()
+    X, Y = create_Input_Output(feature_data)  
 
     print "starting Gaussian", datetime.datetime.now()
     clf = GaussianNB()
@@ -85,6 +81,6 @@ def main():
     test_prediction(clf, X, Y)
 
     print "finished", datetime.datetime.now()
-
+    print "total runtime: ", datetime.datetime.now() - start_time
 if __name__ == '__main__':
     main()
