@@ -10,9 +10,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_selection import RFE
 
-#NOTE: infile needs to be entered for indpendent data sources
-#Final model filename must be named Final_Model.out
+#infile can be changed to process each data source independently
 infile = 'Final_Model.out'
+
+#NOTE: Feature selection with RFE and assessment of feature importance with RF 
+#only done if eval_features is set to TRUE
+eval_features = False
 
 def load_infile():
     print "reading file", datetime.datetime.now()
@@ -91,9 +94,10 @@ def main():
     print "starting RF", datetime.datetime.now()
     clf = RandomForestClassifier(max_depth=15)
     test_prediction(clf, X, Y)
-    print "RF Features", clf.n_features_, clf.feature_importances_
+    if eval_features:
+        print "RF Features", clf.n_features_, clf.feature_importances_
 
-    if infile == 'Final_Model.out':
+    if eval_features:
         print "starting LR", datetime.datetime.now()
         clf = LogisticRegression()
         rfe = RFE(clf, 10)
