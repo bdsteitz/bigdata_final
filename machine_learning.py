@@ -7,10 +7,16 @@ from sklearn.cross_validation import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_selection import RFE
+
+#NOTE: infile needs to be entered for indpendent data sources
+#Final model filename must be named Final_Model.out
+infile = 'Final_Model.out'
 
 def load_infile():
     print "reading file", datetime.datetime.now()
-    f = open('inpatient_icd_6mo.txt', 'r')
+    f = open(infile, 'r')
     lines = f.readlines()
     f.close()
     return lines
@@ -21,7 +27,10 @@ def create_Input_Output(feature_data):
     print "starting file processing", datetime.datetime.now()
     for line in feature_data:
         line = line.strip()
-        line = line[1:-1]
+        if line[2] == '(':
+            line = line[2:-2]
+        elif line[1] == '(':
+            line = line[1:-1]
         line = line.split(',')
         features.append(line[2:-1])
         outcome.append(line[-1])
@@ -50,18 +59,21 @@ def test_prediction(clf, X, Y):
         prediction_unscaled = clf.predict_proba(X[test])
         aucs_baseline_unscaled.append(roc_auc_score(Y[test], Y_baseline))
         aucs_unscaled.append(roc_auc_score(Y[test], prediction_unscaled[:,1]))
-        X_train_scaled = preprocessing.scale(X[train])
-        clf.fit(X_train_scaled, Y[train])
-        X_test_scaled = preprocessing.scale(X[test])
-        prediction_scaled = clf.predict_proba(X_test_scaled)
-        aucs_baseline_scaled.append(roc_auc_score(Y[test], Y_baseline))
-        aucs_scaled.append(roc_auc_score(Y[test], prediction_scaled[:,1]))
+        #scales data for models except in RF
+        if clf.__class__.__name__ != "RandomForestClassifier":
+            X_train_scaled = preprocessing.scale(X[train])
+            clf.fit(X_train_scaled, Y[train])
+            X_test_scaled = preprocessing.scale(X[test])
+            prediction_scaled = clf.predict_proba(X_test_scaled)
+            aucs_baseline_scaled.append(roc_auc_score(Y[test], Y_baseline))
+            aucs_scaled.append(roc_auc_score(Y[test], prediction_scaled[:,1]))
     print "baseline unscaled aucs", clf.__class__.__name__, aucs_baseline_unscaled, numpy.mean(aucs_baseline_unscaled)
     print "model unscaled aucs", clf.__class__.__name__, aucs_unscaled, numpy.mean(aucs_unscaled)
     print "diff unscaled aucs", clf.__class__.__name__, (numpy.mean(aucs_unscaled) - numpy.mean(aucs_baseline_unscaled))
-    print "baseline scaled aucs", clf.__class__.__name__, aucs_baseline_scaled, numpy.mean(aucs_baseline_scaled)
-    print "model scaled aucs", clf.__class__.__name__, aucs_scaled, numpy.mean(aucs_scaled)
-    print "diff scaled aucs", clf.__class__.__name__, (numpy.mean(aucs_scaled) - numpy.mean(aucs_baseline_scaled))
+    if clf.__class__.__name__ != "RandomForestClassifier":
+        print "baseline scaled aucs", clf.__class__.__name__, aucs_baseline_scaled, numpy.mean(aucs_baseline_scaled)
+        print "model scaled aucs", clf.__class__.__name__, aucs_scaled, numpy.mean(aucs_scaled)
+        print "diff scaled aucs", clf.__class__.__name__, (numpy.mean(aucs_scaled) - numpy.mean(aucs_baseline_scaled))
 
 def main():
     start_time = datetime.datetime.now()
@@ -79,6 +91,14 @@ def main():
     print "starting RF", datetime.datetime.now()
     clf = RandomForestClassifier(max_depth=15)
     test_prediction(clf, X, Y)
+    print "RF Features", clf.n_features_, clf.feature_importances_
+
+    if infile == 'Final_Model.out':
+        print "starting LR", datetime.datetime.now()
+        clf = LogisticRegression()
+        rfe = RFE(clf, 10)
+        test_prediction(rfe, X, Y)
+        print "RFE support and ranking", rfe.support_, rfe.ranking_
 
     print "finished", datetime.datetime.now()
     print "total runtime: ", datetime.datetime.now() - start_time
