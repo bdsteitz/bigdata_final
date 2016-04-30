@@ -101,7 +101,7 @@ def main():
         print "starting LR", datetime.datetime.now()
         clf = LogisticRegression()
         rfe = RFE(clf, 10)
-        test_prediction(rfe, X, Y)
+        rfe = rfe.fit(X, Y)
         print "RFE support and ranking", rfe.support_, rfe.ranking_
 
     print "finished", datetime.datetime.now()
