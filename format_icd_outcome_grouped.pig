@@ -1,4 +1,4 @@
- ICDs = LOAD 'hdfs:/user/steitzb/grad_students/group_icd/outpt_icd_group.txt' using PigStorage(',');
+ ICDs = LOAD 'hdfs:/user/steitzb/grad_students/inpatient_icd_chapters/inpt_icd_group.txt' using PigStorage(',');
  Benefs = LOAD 'hdfs:/user/steitzb/grad_students/beneficiary/*.csv' using PigStorage(',');
  ICD = FOREACH ICDs GENERATE $0 as ID, (int)$1 as date, $2 as age, $3 as ICDC1, $4 as ICDC2, $5 as ICDC3, $6 as ICDC4,$7
  as ICDC5, $8 as ICDC6, $9 as ICDC7, $10 as ICDC8, $11 as ICDC9, $12 as ICDC10, $13 as ICDC11, $14 as ICDC12, $15 as
